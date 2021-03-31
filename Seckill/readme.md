@@ -1,7 +1,7 @@
 
 
+## 第二部分：登录功能
 
-## 第二部分
 1. 数据库设计
 2. 明文密码两次MD5处理
 3. JSR303参数校验+全局异常处理器
@@ -111,7 +111,292 @@ CREATE TABLE miaosha_user (
 
 #### 4.3 步骤
 
+- 创建token，与查出来的用户信息构建映射关系存到Redis中
+- 将token存到cookie中，
+- 之后获取的时候从cookie或者request中获取
+- 并通过token可以获得用户信息
 
+#### 4.4 如何能直接查找到用户
+
+问题：用户要做controller形参，如何能够在调用该handler之前传入？
+
+答：可以通过参数解析器，Spring中通过参数解析器来将参数组织好，从而传入到形参中
+
+
+
+## 第三部分：实现秒杀功能
+
+1、数据库设计
+
+2、商品列表页
+
+3、商品详情页
+
+4、订单详情页
+
+
+
+### 1、 数据库设计
+
+- 商品表
+- 订单表
+- 秒杀商品表
+- 秒杀订单表
+
+```sql
+# goods
+CREATE TABLE goods(
+	id BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '商品ID',
+	goods_name VARCHAR(16) DEFAULT NULL COMMENT '商品名称',
+	goods_title VARCHAR(64) DEFAULT NULL COMMENT '商品标题',
+	goods_img VARCHAR(64) DEFAULT NULL COMMENT '商品图片',
+	goods_detail LONGTEXT COMMENT '商品详情介绍',
+	goods_price DECIMAL(10,2) DEFAULT 0.00 COMMENT '商品单价',
+	goods_stock INT(11) DEFAULT 0 COMMENT '商品库存，-1表示没有限制',
+	PRIMARY KEY(id)
+)ENGINE=INNODB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO goods VALUES(1,'iPhoneX','Apple iPhone X(A1865) 64G 银色 移动联通电信4G手机','/img/iphonex.png','Apple iPhone X(A1865) 64G 银色 移动联通电信4G手机',9999,10),(2,'HuaWeiMate 40','HuaWei Mate10 4+64G 白色 移动联通电信4G手机','/img/mate10.png','HuaWei Mate10 4+64G 白色 移动联通电信4G手机',5000,20);
+
+
+drop TABLE miaosha_goods
+# miaosha_goods
+CREATE TABLE miaosha_goods(
+	id BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '秒杀的商品ID',
+	goods_id BIGINT(20) DEFAULT NULL COMMENT '商品ID',
+	miaosha_price decimal(10,2) COMMENT '秒杀价',
+	stock_count int(11) DEFAULT NULL COMMENT '库存数量',
+	start_date DATETIME DEFAULT NULL COMMENT '秒杀开始时间',
+	end_date DATETIME DEFAULT NULL COMMENT '秒杀结束时间',
+
+	PRIMARY KEY(id)
+)ENGINE=INNODB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+
+
+# order_info
+create table order_info(
+    id BIGINT(20) NOT NULL AUTO_INCREMENT,
+    user_id BIGINT(20) DEFAULT NULL COMMENT '用户ID',
+    goods_id BIGINT(20) DEFAULT NULL COMMENT '商品ID',
+    delivery_addr_id BIGINT(20) DEFAULT NULL COMMENT '收获地址ID',
+    goods_name varchar(16) DEFAULT NULL COMMENT '冗余过来的商品名称',
+    goods_count int(11) DEFAULT 0 COMMENT '商品数量',
+    goods_price decimal(10,2) DEFAULT 0.00 COMMENT '商品单价',
+    order_channel tinyint(4)  DEFAULT 0 COMMENT '1PC 2Android 3IOS',
+    status tinyint(4) DEFAULT 0 COMMENT '订单状态:  0新建未支付，1已支付，2已发货，3已收货，4已退款，5已完成',
+    create_date DATETIME DEFAULT NULL COMMENT '订单创建时间',
+    pay_date DATETIME  DEFAULT NULL COMMENT '订单支付时间',
+    PRIMARY KEY(id)
+)ENGINE=INNODB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4;
+
+
+
+# miaosha_order
+create table miaosha_order(
+    id BIGINT(20) NOT NULL AUTO_INCREMENT,
+    user_id BIGINT(20) DEFAULT NULL COMMENT '用户ID',
+    order_id BIGINT(20) DEFAULT NULL COMMENT '订单ID',
+    goods_id BIGINT(20) DEFAULT NULL COMMENT '商品ID',
+    PRIMARY KEY(id)
+)ENGINE=INNODB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
+
+
+insert into miaosha_goods values(1,1,0.01,4,'2021-03-27 21:25:00','2021-03-29 21:25:00'),(2,2,0.01,4,'2021-03-27 21:25:00','2021-03-29 21:25:00');
+
+```
+
+**1、创建对应的pojo类**
+
+可以通过idea自带的生成器进行生成，再进行微调
+
+### 2、商品列表
+
+### 3、商品详情
+
+### 4、订单详情
+
+
+
+## 第四章： JMeter压测
+
+- JMeter入门
+- 自定义变量模拟多用户
+
+- JMeter命令行使用
+- Redis压测工具--beanchmark
+- SpringBoot打war包
+
+
+
+### JMeter入门
+
+java开发的一款压力测试软件。
+
+测试接口
+
+eg1：测试/goods/to_list
+
+线程组：
+
+1秒钟产生1000个线程，持续10轮。共生成10000次请求。
+
+注意在测试的时候要加token，才能获得user，否则会报错。
+
+![image-20210330155437519](img/image-20210330155437519.png)
+
+![image-20210330155349587](img/image-20210330155349587.png)
+
+吞吐量为： 114/sec；
+
+eg2: 测试/user/info
+
+线程组同上，
+
+遇到jedis的连接池中资源不够，之后扩大redis的poolMaxTotal，才没有报错
+
+![image-20210330161750660](img/image-20210330161750660.png)
+
+吞吐量为533/sec，比直接访问数据库增快了5倍**
+
+
+
+### JMeter自定义变量
+
+**使用不同的用户，进行压测**
+
+步骤：
+
+1、 添加配置文件-> 添加数据文件CSV数据文件设置 ->
+
+config.txt中 ：
+
+15735184077,99aa27865a7049c8aba75f4faf509e96
+
+在csv文件中：
+
+![image-20210330184253840](img/image-20210330184253840.png)
+
+在请求中：
+
+![image-20210330184328087](img/image-20210330184328087.png)
+
+压测结果：
+
+![image-20210330184414312](img/image-20210330184414312.png)
+
+### JMeter命令行
+
+使用步骤：
+
+1、 在windows上录好.jmx文件
+
+2、 命令行： sh jmeter.sh -n -t XXX.jmx -l result.jtl
+
+3、 result.jtl 导入到jmeter中
+
+
+
+### Redis压测
+
+```bash
+# 
+redis-benchmark
+```
+
+
+
+```bash
+# 100个并发连接，100000个请求
+redis-benchmark -h 127.0.0.1 -p 6379 -c 100 -n 100000
+```
+
+大概能达到  61652.28 requests per second
+
+
+
+- 存取大小为100字节的数据包，上边默认测试的是3字节
+
+```bash
+redis-benchmark -h 127.0.0.1 -p 6379 -q -d 100    # -q 简写
+```
+
+![image-20210330191813433](img/image-20210330191813433.png)
+
+
+
+- 只测试部分命令
+
+```bash
+redis-benchmark -t set,lpush -n 100000 -q
+```
+
+![image-20210330192109336](img/image-20210330192109336.png)
+
+
+
+- 只测试这条命令
+
+```bash
+redis-benchmark -n 100000 -q script load "redis.call('set','foo','bar')"
+```
+
+![image-20210330192507711](img/image-20210330192507711.png)
+
+### SpringBoot 打war包
+
+1、 在pom文件中增加
+
+```xml
+<groupId>org.lzj</groupId>
+<artifactId>Seckill</artifactId>
+<version>1.0-SNAPSHOT</version>
+<packaging>war</packaging>     <!-- 增加打包方式为 war包 -->
+
+<build>
+    <finalName>${project.artifactId}</finalName>  
+    <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>3.3.1</version>
+        <configuration>
+            <failOnMissingWebXml>false</failOnMissingWebXml>
+        </configuration>
+    </plugin>
+</build>
+```
+
+2、 修改SpringBoot的入口如下，继承SpringBootServletInitializer+重写configure方法
+
+```java
+@SpringBootApplication
+public class MainApplication extends SpringBootServletInitializer
+{
+    public static void main( String[] args ) {
+        SpringApplication.run(MainApplication.class, args);
+    }
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(MainApplication.class);
+    }
+}
+```
+
+
+
+3、 在terminal中输入打包命令
+
+```bash
+mvn clean package
+```
+
+生成的Seckill.war保存在targets目录中
+
+4、 部署
+
+将Seckill.war直接复制到tomcat目录下的webapps中，或者直接到webapps/ROOT目录下，在开启了tomcat服务器后，可通过8080端口访问web服务。
+
+  
 
 
 
