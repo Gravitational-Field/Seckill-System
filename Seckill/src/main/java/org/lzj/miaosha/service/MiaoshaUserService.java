@@ -70,8 +70,8 @@ public class MiaoshaUserService {
             throw new GlobalException(CodeMsg.PASSWORD_ERROR);
         }
         //生成token
-        String token = UUIDUtil.uuid();
-        addCookie(response, token,user);
+        String token = UUIDUtil.uuid();   //每登录一次，存在cookie中的token即会发生变化，
+        addCookie(response, token, user);
         return true;
     }
 

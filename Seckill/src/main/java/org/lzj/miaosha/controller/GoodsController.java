@@ -52,6 +52,8 @@ public class GoodsController {
         return "goods_list";
     }*/
 
+    // 每秒5000并发，循环10次，共50000个请求   通吐量：176.7/sec
+    //
     @RequestMapping("/to_list")
     public String list(Model model, MiaoshaUser user) { //如何能将数据传输进来？   通过拦截器
         if(user != null) {

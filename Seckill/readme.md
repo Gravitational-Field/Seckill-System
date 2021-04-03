@@ -217,7 +217,7 @@ insert into miaosha_goods values(1,1,0.01,4,'2021-03-27 21:25:00','2021-03-29 21
 
 
 
-## 第四章： JMeter压测
+## 第四部分： JMeter压测
 
 - JMeter入门
 - 自定义变量模拟多用户
@@ -288,22 +288,29 @@ config.txt中 ：
 
 使用步骤：
 
-1、 在windows上录好.jmx文件
+0、 springBoot项目打jar包
 
-2、 命令行： sh jmeter.sh -n -t XXX.jmx -l result.jtl
+1、 在windows上录好.jmx文件，传到linux上（使用rz命令，选择jmx文件）
 
-3、 result.jtl 导入到jmeter中
+2、 在linux上启动服务：  nohup java -jar Seckill.jar
+
+3、 命令行： sh jmeter.sh -n -t  XXX.jmx -l result.jtl
+
+4、 用sz命令  result.jtl 导出到windows，并导入到jmeter中查看效果
+
+
+
+操作细节：
+
+需要创建多个用户，创建了一个UserUtil类，创建5000个User，并存储到Miaosha用户表中；
+
+在创建之后，模拟登录请求，来获得各自对应的token，并存储在redis中，并将userId及token存储在token.txt中；
+
+该文件在jmeter的csv数据文件设置中进行配置；在linux中，需要修改.jmx 中 csv位置的token位置。
 
 
 
 ### Redis压测
-
-```bash
-# 
-redis-benchmark
-```
-
-
 
 ```bash
 # 100个并发连接，100000个请求
@@ -396,7 +403,79 @@ mvn clean package
 
 将Seckill.war直接复制到tomcat目录下的webapps中，或者直接到webapps/ROOT目录下，在开启了tomcat服务器后，可通过8080端口访问web服务。
 
-  
+
+
+## 第五部分：页面优化及高并发秒杀优化
+
+使用Redis缓存和静态化分离方式
+
+1、页面缓存+URL缓存+对象缓存
+
+2、页面静态化（纯html+ajax，浏览器缓存静态数据在客户端，不需要从服务器来获得）+前后端分离
+
+3、静态资源优化
+
+4、CDN优化
+
+
+
+### 1、页面缓存
+
+将页面html的字符串缓存到redis中，设定一个较短的有效期
+
+并不直接从系统中进行渲染，而是先从缓存中取，找到了直接返回客户端，没找到，则从服务器中取，获得之后，渲染到页面，并保存在客户端中。
+
+1、取缓存
+
+2、手动渲染
+
+3、写到输出中
+
+
+
+页面缓存有效期应当比较短，比如说60s，
+
+页面只有部分数据要变。
+
+
+
+### 2、URL缓存
+
+不同的id对应不同的页面，此时不同的url对应的页面均要进行缓存。
+
+
+
+变化不大的页面使用以上两种缓存。自动失效，不需要进行干预。
+
+
+
+### 3、对象缓存
+
+力度最小
+
+如在用户登录模块，通过一个token获得一个User 
+
+
+
+使其永久有效。
+
+通过token存User到redis中。
+
+
+
+
+
+当update或者delete时，调用时，在数据更新后，必须将缓存进行一致性保障，token相应的缓存进行更新，getById相应的缓存需要进行删除，不处理导致缓存中数据与数据库中的数据发生不一致。
+
+ 
+
+### 4、页面静态化
+
+可以使用VUE或者
+
+将页面直接缓存到浏览器上，不用再去服务器上去获取。
+
+利用浏览器缓存
 
 
 
