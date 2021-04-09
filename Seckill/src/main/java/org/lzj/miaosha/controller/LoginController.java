@@ -1,6 +1,7 @@
 package org.lzj.miaosha.controller;
 
 import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.lzj.miaosha.redis.RedisService;
 import org.lzj.miaosha.result.CodeMsg;
 import org.lzj.miaosha.result.Result;
 import org.lzj.miaosha.service.MiaoshaUserService;
@@ -31,6 +32,9 @@ public class LoginController {
     @Autowired
     MiaoshaUserService miaoshaUserService;
 
+    @Autowired
+    RedisService redisService;
+
     @RequestMapping("/to_login")
     public String toLogin() {
         return "login";
@@ -52,7 +56,6 @@ public class LoginController {
         }*/
 
         miaoshaUserService.login(response, loginVo);
-
         return Result.success(true);
     }
 }

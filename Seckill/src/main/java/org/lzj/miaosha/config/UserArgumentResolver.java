@@ -1,6 +1,7 @@
 package org.lzj.miaosha.config;
 
 import org.apache.commons.lang3.StringUtils;
+import org.lzj.miaosha.access.UserContext;
 import org.lzj.miaosha.domain.MiaoshaUser;
 import org.lzj.miaosha.service.MiaoshaUserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         //或许原本的请求
-        HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
+        /*HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
         HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
 
         String paramToken = request.getParameter(MiaoshaUserService.COOKIE_NAME_TOKEN);
@@ -48,7 +49,8 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
         }
         String token = StringUtils.isEmpty(cookieToken)?paramToken:cookieToken;
 
-        return miaoshaUserServive.getByToken(response, token);
+        return miaoshaUserServive.getByToken(response, token);*/
+        return UserContext.getUser();
     }
 
     private String getCookieValue(HttpServletRequest request, String cookieNameToken) {
@@ -56,7 +58,6 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
         if(cookies == null || cookies.length == 0) {
             return null;
         }
-
 
         for (Cookie cookie: cookies) {
             if(cookie.getName().equals(cookieNameToken)) {

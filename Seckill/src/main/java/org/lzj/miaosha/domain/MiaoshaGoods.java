@@ -8,7 +8,7 @@ public class MiaoshaGoods {
     private Long id;
     private Long goodsId;
     private Double miaoshaPrice;
-    private Long stockCount;
+    private Integer stockCount;
     private Date startDate;
     private Date endDate;
 
@@ -44,7 +44,7 @@ public class MiaoshaGoods {
         return stockCount;
     }
 
-    public void setStockCount(Long stockCount) {
+    public void setStockCount(Integer stockCount) {
         this.stockCount = stockCount;
     }
 

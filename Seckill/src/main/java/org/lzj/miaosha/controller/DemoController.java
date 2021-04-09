@@ -1,6 +1,9 @@
 package org.lzj.miaosha.controller;
 
 import org.lzj.miaosha.domain.User;
+import org.lzj.miaosha.rabbitmq.MQConfig;
+import org.lzj.miaosha.rabbitmq.MQReceiver;
+import org.lzj.miaosha.rabbitmq.MQSender;
 import org.lzj.miaosha.redis.RedisService;
 import org.lzj.miaosha.redis.UserKey;
 import org.lzj.miaosha.result.CodeMsg;
@@ -12,6 +15,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @ClassName DemoController
@@ -31,6 +37,40 @@ public class DemoController {
 
     @Autowired
     RedisService redisService;
+
+    @Autowired
+    MQSender mqSender;
+
+    @Autowired
+    MQReceiver mqReceiver;
+
+//	@RequestMapping("/mq/header")
+//    @ResponseBody
+//    public Result<String> header() {
+//		sender.sendHeader("hello,imooc");
+//        return Result.success("Hello，world");
+//    }
+//
+//	@RequestMapping("/mq/fanout")
+//    @ResponseBody
+//    public Result<String> fanout() {
+//		sender.sendFanout("hello,imooc");
+//        return Result.success("Hello，world");
+//    }
+//
+//	@RequestMapping("/mq/topic")
+//    @ResponseBody
+//    public Result<String> topic() {
+//		sender.sendTopic("hello,imooc");
+//        return Result.success("Hello，world");
+//    }
+//
+//	@RequestMapping("/mq")
+//    @ResponseBody
+//    public Result<String> mq() {
+//		sender.send("hello,imooc");
+//        return Result.success("Hello，world");
+//    }
 
     @RequestMapping("/")
     @ResponseBody
@@ -82,6 +122,7 @@ public class DemoController {
     @RequestMapping("/redis/set")
     @ResponseBody
     public Result<User> redisSet() {
+
         User user = new User();
         user.setId(1);
         user.setName("keen");
