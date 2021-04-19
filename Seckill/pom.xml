@@ -7,7 +7,7 @@
     <groupId>org.lzj</groupId>
     <artifactId>Seckill</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>jar</packaging>  <!--打jar包还是打war包在这里进行配置-->
+    <packaging>war</packaging>  <!--打jar包还是打war包在这里进行配置-->
 
     <name>Seckill</name>
     <!-- FIXME change it to the project's website -->
@@ -87,13 +87,13 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!--打jar包,需要tomcat，开发时候也需要-->
-        <!--打war包不需要-->
-        <!--<dependency>
+
+        <!--打war包,tomcat是外部提供,所以要添加依赖-->
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
-            <scope>provided</scope>
-        </dependency>-->
+            <scope>provided</scope>  <!--provide作用域，默认不会在部署时打包进去-->
+        </dependency>
 
         <!--继承Rabbitmq-->
         <dependency>
@@ -106,19 +106,19 @@
         <finalName>${project.artifactId}</finalName>
         <plugins>
             <!--打war包-->
-            <!--<plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.3.1</version>
                 <configuration>
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
-            </plugin>-->
+            </plugin>
             <!--打jar包-->
-            <plugin>
+            <!--<plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
+            </plugin>-->
         </plugins>
     </build>
 </project>
