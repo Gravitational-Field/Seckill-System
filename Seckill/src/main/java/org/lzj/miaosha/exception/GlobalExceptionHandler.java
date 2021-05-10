@@ -40,5 +40,4 @@ public class GlobalExceptionHandler {
             return Result.error(CodeMsg.SERVER_ERROR);
         }
     }
-
 }

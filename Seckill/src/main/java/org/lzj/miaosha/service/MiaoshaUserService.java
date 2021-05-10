@@ -48,17 +48,7 @@ public class MiaoshaUserService {
         return user;
     }
 
-    public MiaoshaUser getByToken(HttpServletResponse response, String token) {
-        if (StringUtils.isEmpty(token)) {
-            return null;
-        }
-        MiaoshaUser user = redisService.get(MiaoshaUserKey.token, token, MiaoshaUser.class);
-        if (user != null) {
-            //延长有效期
-            addCookie(response, token, user);
-        }
-        return user;
-    }
+
 
     /*登录服务*/
     public String login(HttpServletResponse response, LoginVo loginVo) {
@@ -114,5 +104,15 @@ public class MiaoshaUserService {
         response.addCookie(cookie);
     }
 
-
+    public MiaoshaUser getByToken(HttpServletResponse response, String token) {
+        if (StringUtils.isEmpty(token)) {
+            return null;
+        }
+        MiaoshaUser user = redisService.get(MiaoshaUserKey.token, token, MiaoshaUser.class);
+        if (user != null) {
+            //延长有效期
+            addCookie(response, token, user);
+        }
+        return user;
+    }
 }
