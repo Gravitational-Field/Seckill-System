@@ -510,7 +510,7 @@ spring.resources.chain.html-application-cache=true
 spring.resources.static-locations=classpath:/static/
 ```
 
-这样，浏览器请求不会发送到服务器，直接得到缓存的结果。
+~~这样，浏览器请求不会发送到服务器，直接得到缓存的结果。~~
 
 
 

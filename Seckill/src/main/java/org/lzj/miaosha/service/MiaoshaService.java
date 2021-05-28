@@ -66,9 +66,9 @@ public class MiaoshaService {
             return order.getOrderId();
         }else {
             boolean isOver = getGoodsOver(goodsId);
-            if(isOver) {
+            if(isOver) { //没秒杀到
                 return -1;
-            }else {
+            }else {  //还在秒杀中
                 return 0;
             }
         }

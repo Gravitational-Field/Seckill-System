@@ -32,8 +32,8 @@ public class LoginController {
     @Autowired
     MiaoshaUserService miaoshaUserService;
 
-    @Autowired
-    RedisService redisService;
+    /*@Autowired
+    RedisService redisService;*/
 
     @RequestMapping("/to_login")
     public String toLogin() {

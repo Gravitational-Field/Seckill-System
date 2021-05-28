@@ -239,5 +239,4 @@ public class MiaoshaController implements InitializingBean {
         return "order_detail";
     }*/
 
-
 }
